@@ -1,0 +1,92 @@
+[
+  {
+    "start_chainage": 0,
+    "end_chainage": 49.963209507789,
+    "length": 49.963209507789,
+    "geological_type": "soft_clay",
+    "ucs_strength": 17.33739159464655,
+    "abrasivity_index": 0.2559382000545538,
+    "groundwater_level": 16.93700315892974,
+    "difficulty_factor": 0.3
+  },
+  {
+    "start_chainage": 49.963209507789,
+    "end_chainage": 105.62982973607629,
+    "length": 55.66662022828729,
+    "geological_type": "hard_rock",
+    "ucs_strength": 1232.3344486727979,
+    "abrasivity_index": 0.9464704583099741,
+    "groundwater_level": 17.022300234864176,
+    "difficulty_factor": 1.0
+  },
+  {
+    "start_chainage": 105.62982973607629,
+    "end_chainage": 182.27563595975994,
+    "length": 76.64580622368364,
+    "geological_type": "dense_sand",
+    "ucs_strength": 55.64115790271003,
+    "abrasivity_index": 0.5165996316800474,
+    "groundwater_level": 23.771054180315005,
+    "difficulty_factor": 0.6
+  },
+  {
+    "start_chainage": 182.27563595975994,
+    "end_chainage": 202.3379372270411,
+    "length": 20.062301267281146,
+    "geological_type": "mixed_ground",
+    "ucs_strength": 228.38315689740367,
+    "abrasivity_index": 0.5216968971838152,
+    "groundwater_level": 15.495128632644757,
+    "difficulty_factor": 0.8
+  },
+  {
+    "start_chainage": 202.3379372270411,
+    "end_chainage": 256.89353871841035,
+    "length": 54.55560149136926,
+    "geological_type": "soft_clay",
+    "ucs_strength": 30.990986410335566,
+    "abrasivity_index": 0.1799721943430511,
+    "groundwater_level": 5.933313264272309,
+    "difficulty_factor": 0.3
+  },
+  {
+    "start_chainage": 256.89353871841035,
+    "end_chainage": 354.79398022572707,
+    "length": 97.90044150731673,
+    "geological_type": "hard_rock",
+    "ucs_strength": 2824.2799368681435,
+    "abrasivity_index": 0.9140703845572055,
+    "groundwater_level": 8.993475643167194,
+    "difficulty_factor": 1.0
+  },
+  {
+    "start_chainage": 354.79398022572707,
+    "end_chainage": 415.932735298816,
+    "length": 61.13875507308893,
+    "geological_type": "mixed_ground",
+    "ucs_strength": 426.7340252735859,
+    "abrasivity_index": 0.7439761626945283,
+    "groundwater_level": 18.606150771755594,
+    "difficulty_factor": 0.8
+  },
+  {
+    "start_chainage": 415.932735298816,
+    "end_chainage": 471.9726754563794,
+    "length": 56.039940157563436,
+    "geological_type": "dense_sand",
+    "ucs_strength": 144.88855372533334,
+    "abrasivity_index": 0.5896896099223679,
+    "groundwater_level": 21.16794696232922,
+    "difficulty_factor": 0.6
+  },
+  {
+    "start_chainage": 471.9726754563794,
+    "end_chainage": 500.0,
+    "length": 28.02732454362058,
+    "geological_type": "soft_clay",
+    "ucs_strength": 19.23575302488596,
+    "abrasivity_index": 0.14820509320520234,
+    "groundwater_level": 18.665270376509163,
+    "difficulty_factor": 0.3
+  }
+]
