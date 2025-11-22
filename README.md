@@ -9,7 +9,7 @@ This repository contains an **advanced machine learning framework** for **Micro-
 
 ### 📊 **Supported Protocols**
 - **AVN 800**: Drive Performance & Equipment Optimization
-- **AVN 1200**: Steering Accuracy & Tunnel Alignment  
+- **AVN 1200**: Steering Accuracy & Tunnel Alignment
 - **AVN 2400**: Advanced Measurement & Quality Control *(NEW)*
 - **AVN 3000**: Predictive Planning & Resource Management
 
@@ -403,14 +403,14 @@ def optimize_maintenance_schedule(equipment_list, constraints):
         'maximize_equipment_availability',
         'balance_workforce_utilization'
     ]
-    
+
     constraints = [
         'operational_requirements',
         'resource_availability',
         'critical_path_activities',
         'weather_windows'
     ]
-    
+
     return optimal_schedule
 ```
 
@@ -703,14 +703,14 @@ def optimize_cutter_performance(ground_conditions, current_parameters):
         'minimize_cutter_wear',
         'maintain_face_stability'
     ]
-    
+
     constraints = [
         'torque_limits',
         'thrust_capacity',
         'power_availability',
         'ground_stability'
     ]
-    
+
     return optimal_parameters
 ```
 
@@ -899,7 +899,7 @@ def calculate_theoretical_volume(tunnel_diameter, pipe_diameter, ring_length):
     pipe_area = π * (pipe_diameter / 2) ** 2
     annular_area = tunnel_area - pipe_area
     theoretical_volume = annular_area * ring_length
-    
+
     # Add overbreak and consolidation factors
     design_factor = 1.15  # 15% overbreak allowance
     return theoretical_volume * design_factor
@@ -993,20 +993,20 @@ def adaptive_grout_control(current_conditions, historical_data):
     Adjust grouting parameters based on real-time conditions
     """
     adjustments = {}
-    
+
     # Volume adjustment based on ground conditions
     if current_conditions['ground_type'] == 'loose_sand':
         adjustments['volume_factor'] = 1.2
         adjustments['pressure_reduction'] = 0.8
-    
+
     # Pressure adjustment for groundwater
     if current_conditions['water_inflow'] > threshold:
         adjustments['minimum_pressure'] = water_pressure + 2
-    
+
     # Mix adjustment for temperature
     if current_conditions['temperature'] > 25:
         adjustments['retarder_dosage'] = 1.5
-    
+
     return adjustments
 ```
 
