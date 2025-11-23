@@ -14,12 +14,14 @@ This repository contains an **advanced machine learning framework** for **Micro-
 - **AVN 3000**: Predictive Planning & Resource Management
 
 ### 🏆 **Key Achievements**
-- **2,000+ lines** of production-ready Python code
-- **5 specialized ML frameworks** with cross-protocol integration
+- **2,500+ lines** of production-ready Python code
+- **7 specialized ML frameworks** with cross-protocol integration
+- **Comprehensive plotting system** for all 23 MTBM parameters
 - **15-25% performance improvement** through ML optimization
 - **60-80% reduction** in unplanned downtime
 - **Sub-millimeter precision** measurement analytics
 - **Advanced analytics**: SPC, anomaly detection, Monte Carlo simulation
+- **Professional visualizations**: 4 graph types with executive-quality output
 
 ## 🆕 **NEW FRAMEWORKS ADDED**
 
@@ -35,10 +37,23 @@ This repository contains an **advanced machine learning framework** for **Micro-
 - **Features**: Statistical Process Control, anomaly detection, environmental compensation
 - **Performance**: RMSE = 0.179mm, Process capability analysis, 93.2% quality compliance
 
-### **3. Enhanced Documentation & Analysis**
+### **3. Comprehensive Plotting System** ⭐
+- **Files**: `mtbm_comprehensive_plotting.py`, `generate_mtbm_graphs.py`, `create_graphs_direct.py`
+- **Capability**: Professional visualization of all 23 MTBM operational parameters
+- **Features**: Time series analysis, deviation analysis, performance dashboards, correlation matrices
+- **Output**: High-resolution PNG graphs suitable for executive presentations
+
+### **4. Real Data Processing** ⭐
+- **Files**: `plot_real_mtbm_data.py`, `load_protocol_pdf.py`, `load_real_data.py`
+- **Capability**: Process real MTBM protocol data from PDF/Excel files
+- **Features**: Automatic column detection, data cleaning, professional visualizations
+- **Integration**: Works with existing protocol documentation and measurement data
+
+### **5. Enhanced Documentation & Analysis**
 - **Cross-Protocol Insights**: Performance comparison across all protocols
 - **Business Value Quantification**: Specific improvement percentages and ROI analysis
 - **Professional Documentation**: Industry-standard technical specifications
+- **Comprehensive Guides**: Complete plotting, installation, and troubleshooting documentation
 
 ## 📋 Table of Contents
 
@@ -1328,6 +1343,37 @@ MTBM-Machine-Learning/
 - **Best Practices**: Proven implementation strategies
 - **Training**: Operator and engineer education programs
 - **Maintenance**: System updates and support services
+
+---
+
+## 🔧 **Quick Start & Troubleshooting**
+
+### **Generate Professional Graphs**
+```bash
+# Navigate to repository
+cd "C:\Users\abdul\Desktop\ML for Tunneling\MTBM-Machine-Learning"
+
+# Generate all 4 graph types
+python create_graphs_direct.py
+
+# Find graph locations
+python find_graph_location.py
+
+# Process real data
+python plot_real_mtbm_data.py your_data.csv
+```
+
+### **Common Issues & Solutions**
+- **Graphs not generating**: Check matplotlib installation (`pip install matplotlib seaborn`)
+- **Files not found**: Verify you're in the correct directory
+- **Permission errors**: Run command prompt as Administrator
+- **Missing libraries**: Run `pip install -r requirements.txt`
+
+### **Generated Files**
+- `1_mtbm_time_series.png` - Time series analysis (24 parameters)
+- `2_mtbm_deviation_analysis.png` - Tunnel deviation analysis
+- `3_mtbm_performance_dashboard.png` - Performance KPIs
+- `4_mtbm_correlation_matrix.png` - Parameter correlations
 
 ---
 
