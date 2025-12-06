@@ -11,6 +11,7 @@ This script shows:
 3. How to bring horizontal and vertical deviations to zero
 """
 
+from typing import Optional
 from steering_calculator import (
     MachineParameters,
     SteeringCommand,
