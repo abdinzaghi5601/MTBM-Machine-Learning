@@ -1,0 +1,32 @@
+{
+  "generation_timestamp": "2025-11-20T11:51:11.622069",
+  "total_records": 1000,
+  "tunnel_length": 499.5,
+  "date_range": {
+    "start": "2024-01-01T00:00:00",
+    "end": "2024-01-21T19:30:00"
+  },
+  "geological_sections": 9,
+  "geological_types": {
+    "hard_rock": 308,
+    "soft_clay": 265,
+    "dense_sand": 265,
+    "mixed_ground": 162
+  },
+  "data_quality": {
+    "missing_values": "0",
+    "duplicate_records": "0",
+    "data_completeness": "100.00%"
+  },
+  "performance_summary": {
+    "avg_advance_speed": "33.33 mm/min",
+    "avg_deviation": "8.93 mm",
+    "avg_alignment_quality": "0.133",
+    "quality_distribution": {
+      "Poor": 950,
+      "Acceptable": 42,
+      "Good": 8,
+      "Excellent": 0
+    }
+  }
+}
