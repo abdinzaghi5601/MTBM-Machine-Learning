@@ -338,69 +338,229 @@ def show_correction_timeline():
         current_yaw = new_yaw
 
 
+def get_float_input(prompt: str, default: Optional[float] = None) -> float:
+    """Get float input from user with optional default"""
+    while True:
+        try:
+            if default is not None:
+                value = input(f"{prompt} [{default}]: ").strip()
+                return float(value) if value else default
+            else:
+                value = input(f"{prompt}: ").strip()
+                if not value:
+                    print("  Please enter a value.")
+                    continue
+                return float(value)
+        except ValueError:
+            print("  Invalid input. Please enter a number.")
+
+
+def interactive_simulator():
+    """
+    Interactive simulator that asks for current readings and ground condition
+    """
+
+    print("\n" + "="*80)
+    print("INTERACTIVE STEERING CORRECTION SIMULATOR")
+    print("="*80)
+    print("\nThis simulator will help you plan corrections based on your actual readings.")
+    print("\nYou can either:")
+    print("  1. Enter current cylinder readings (we'll calculate pitch/yaw)")
+    print("  2. Enter current pitch/yaw directly")
+
+    # Ask input method
+    print("\n" + "-"*80)
+    input_method = input("\nEnter '1' for cylinder readings or '2' for pitch/yaw [1]: ").strip()
+    input_method = input_method if input_method else '1'
+
+    # Setup calculator
+    params = MachineParameters(
+        num_cylinders=3,
+        stroke=50.0,
+        mounting_diameter=715.0,
+        pipe_length=3000.0,
+        vertical_angle=1.49
+    )
+    calc = SteeringCalculator(params)
+
+    current_pitch = 0.0
+    current_yaw = 0.0
+
+    if input_method == '1':
+        # Get cylinder readings
+        print("\n" + "="*80)
+        print("ENTER CURRENT CYLINDER READINGS")
+        print("="*80)
+        print("Enter the current positions of your steering cylinders (in mm):\n")
+
+        cyl1 = get_float_input("Cylinder 1 (Top, 0°)", default=25.0)
+        cyl2 = get_float_input("Cylinder 2 (120°)", default=25.0)
+        cyl3 = get_float_input("Cylinder 3 (240°)", default=25.0)
+
+        # Calculate pitch/yaw from cylinders
+        readings = CylinderReadings(cylinder_1=cyl1, cylinder_2=cyl2, cylinder_3=cyl3)
+        steering = calc.calculate_steering(readings)
+        current_pitch = steering.pitch
+        current_yaw = steering.yaw
+
+        print(f"\nCalculated from cylinder readings:")
+        print(f"  Pitch: {current_pitch:+.2f} mm/m")
+        print(f"  Yaw:   {current_yaw:+.2f} mm/m")
+
+    else:
+        # Get pitch/yaw directly
+        print("\n" + "="*80)
+        print("ENTER CURRENT PITCH AND YAW")
+        print("="*80)
+        print("Enter your current steering state:\n")
+
+        current_pitch = get_float_input("Current Pitch (mm/m)", default=0.0)
+        current_yaw = get_float_input("Current Yaw (mm/m)", default=0.0)
+
+    # Get ground condition
+    print("\n" + "="*80)
+    print("ENTER GROUND CONDITION")
+    print("="*80)
+    print("Ground condition affects maximum steering rates:")
+    print("  • SOFT:  Maximum 10 mm/m (can handle aggressive steering)")
+    print("  • MIXED: Maximum 4 mm/m (limit to prevent jacking pressure increase)")
+    print("  • ROCK:  Maximum 2 mm/m (CRITICAL - exceeding can halt jacking!)")
+
+    while True:
+        ground_input = input("\nGround condition [soft/mixed/rock] [mixed]: ").strip().lower()
+        if not ground_input:
+            ground_input = "mixed"
+
+        if ground_input in ['soft', 's']:
+            ground_condition = GroundCondition.SOFT
+            break
+        elif ground_input in ['mixed', 'm']:
+            ground_condition = GroundCondition.MIXED
+            break
+        elif ground_input in ['rock', 'r']:
+            ground_condition = GroundCondition.ROCK
+            break
+        else:
+            print("  Invalid input. Please enter: soft, mixed, or rock")
+
+    max_rate = ground_condition.get_max_steering_rate()
+    recommended_max = ground_condition.get_recommended_max()
+    print(f"\nSelected: {ground_condition.value.upper()}")
+    print(f"  Maximum allowed rate: {max_rate} mm/m")
+    print(f"  Recommended max rate: {recommended_max} mm/m")
+
+    # Get target pitch/yaw
+    print("\n" + "="*80)
+    print("ENTER TARGET PITCH AND YAW")
+    print("="*80)
+    print("Enter your target steering state (usually 0, 0 to be straight and level):\n")
+
+    target_pitch = get_float_input("Target Pitch (mm/m)", default=0.0)
+    target_yaw = get_float_input("Target Yaw (mm/m)", default=0.0)
+
+    # Get correction strategy
+    print("\n" + "="*80)
+    print("CORRECTION STRATEGY")
+    print("="*80)
+    print("How aggressively do you want to correct?")
+    print("  • Conservative: 30% per pipe (safer, takes longer)")
+    print("  • Moderate:     50% per pipe (balanced)")
+    print("  • Aggressive:   70% per pipe (faster, limited by ground condition)")
+
+    strategy = input("\nStrategy [conservative/moderate/aggressive] [moderate]: ").strip().lower()
+    if strategy == 'conservative' or strategy == 'c':
+        correction_rate = 0.3
+    elif strategy == 'aggressive' or strategy == 'a':
+        correction_rate = 0.7
+    else:
+        correction_rate = 0.5  # moderate
+
+    print(f"\nUsing {int(correction_rate*100)}% correction rate per pipe")
+
+    # Run simulation
+    print("\n\n")
+    simulate_correction_to_zero(
+        initial_pitch=current_pitch,
+        initial_yaw=current_yaw,
+        target_pitch=target_pitch,
+        target_yaw=target_yaw,
+        max_pipes=10,
+        correction_rate=correction_rate,
+        ground_condition=ground_condition
+    )
+
+
 def main():
     """
     Main demonstration function
     """
-    
+
     print("\n" + "="*80)
     print("STEERING CORRECTION SIMULATOR")
     print("Understanding How to Bring Deviations to Zero")
     print("="*80)
-    
-    # Part 1: Show how formulas work
-    demonstrate_formulas()
-    
-    # Part 2: Show correction timeline
-    show_correction_timeline()
-    
-    # Part 3: Full simulation (with different ground conditions)
-    print("\n\n")
-    print("="*80)
-    print("SIMULATION 1: Soft Ground (More Aggressive Corrections Allowed)")
-    print("="*80)
-    simulate_correction_to_zero(
-        initial_pitch=12.5,
-        initial_yaw=-18.3,
-        target_pitch=0.0,
-        target_yaw=0.0,
-        max_pipes=5,
-        correction_rate=0.5,
-        ground_condition=GroundCondition.SOFT
-    )
-    
-    print("\n\n")
-    print("="*80)
-    print("SIMULATION 2: Mixed Ground (Limited to 2-4 mm/m)")
-    print("="*80)
-    simulate_correction_to_zero(
-        initial_pitch=12.5,
-        initial_yaw=-18.3,
-        target_pitch=0.0,
-        target_yaw=0.0,
-        max_pipes=5,
-        correction_rate=0.5,
-        ground_condition=GroundCondition.MIXED
-    )
-    
-    print("\n\n")
-    print("="*80)
-    print("SIMULATION 3: Rock Ground (Maximum 2 mm/m - Very Sensitive)")
-    print("="*80)
-    simulate_correction_to_zero(
-        initial_pitch=12.5,
-        initial_yaw=-18.3,
-        target_pitch=0.0,
-        target_yaw=0.0,
-        max_pipes=5,
-        correction_rate=0.5,
-        ground_condition=GroundCondition.ROCK
-    )
-    
-    print("\n" + "="*80)
-    print("KEY TAKEAWAYS")
-    print("="*80)
-    print("""
+
+    # Ask if user wants interactive or demo mode
+    print("\nSelect mode:")
+    print("  1. Interactive Mode - Use YOUR actual readings")
+    print("  2. Demo Mode - See examples with different ground conditions")
+
+    mode = input("\nEnter choice [1]: ").strip()
+
+    if mode == '2':
+        # Part 1: Show how formulas work
+        demonstrate_formulas()
+
+        # Part 2: Show correction timeline
+        show_correction_timeline()
+
+        # Part 3: Full simulation (with different ground conditions)
+        print("\n\n")
+        print("="*80)
+        print("SIMULATION 1: Soft Ground (More Aggressive Corrections Allowed)")
+        print("="*80)
+        simulate_correction_to_zero(
+            initial_pitch=12.5,
+            initial_yaw=-18.3,
+            target_pitch=0.0,
+            target_yaw=0.0,
+            max_pipes=5,
+            correction_rate=0.5,
+            ground_condition=GroundCondition.SOFT
+        )
+
+        print("\n\n")
+        print("="*80)
+        print("SIMULATION 2: Mixed Ground (Limited to 2-4 mm/m)")
+        print("="*80)
+        simulate_correction_to_zero(
+            initial_pitch=12.5,
+            initial_yaw=-18.3,
+            target_pitch=0.0,
+            target_yaw=0.0,
+            max_pipes=5,
+            correction_rate=0.5,
+            ground_condition=GroundCondition.MIXED
+        )
+
+        print("\n\n")
+        print("="*80)
+        print("SIMULATION 3: Rock Ground (Maximum 2 mm/m - Very Sensitive)")
+        print("="*80)
+        simulate_correction_to_zero(
+            initial_pitch=12.5,
+            initial_yaw=-18.3,
+            target_pitch=0.0,
+            target_yaw=0.0,
+            max_pipes=5,
+            correction_rate=0.5,
+            ground_condition=GroundCondition.ROCK
+        )
+
+        print("\n" + "="*80)
+        print("KEY TAKEAWAYS")
+        print("="*80)
+        print("""
 1. Corrections must be applied PROGRESSIVELY over multiple pipes
 2. Each pipe correction = steering_rate × pipe_length
 3. Formula: Cylinder = center + (pitch × radius × cos(θ)) + (yaw × radius × sin(θ))
@@ -408,6 +568,9 @@ def main():
 5. Don't over-correct - gradual is better than aggressive
 6. Target is always: Pitch = 0 mm/m, Yaw = 0 mm/m
     """)
+    else:
+        # Interactive mode
+        interactive_simulator()
 
 
 if __name__ == "__main__":
