@@ -13,11 +13,13 @@ Author: Reverse-engineered from Steer-cyl-cal-rev8_.xls (S.J.Baba)
 Version: 2.0
 """
 
+import math
 from steering_calculator import (
     MachineParameters,
     SteeringCommand,
     CylinderReadings,
-    SteeringCalculator
+    SteeringCalculator,
+    GroundCondition
 )
 
 
@@ -164,18 +166,54 @@ def interactive_calculator():
             print(f"  • {warning}")
 
     # ========================================================================
-    # STEP 4: Get Target Steering State
+    # STEP 4: Get Ground Condition
     # ========================================================================
 
-    print(f"\nSTEP 3: Enter Target Steering State")
+    print(f"\nSTEP 3: Enter Ground Condition")
     print("-" * 80)
-    print("Enter desired pitch and yaw values.\n")
+    print("Ground condition affects maximum steering rate:")
+    print("  • Soft:   Can handle more aggressive steering (up to 10 mm/m)")
+    print("  • Mixed:  Limit to 2-4 mm/m to avoid jacking pressure increase")
+    print("  • Rock:   Maximum 2 mm/m - exceeding can halt jacking procedure")
+    print()
+
+    while True:
+        ground_input = input("Ground condition [soft/mixed/rock] [mixed]: ").strip().lower()
+        if not ground_input:
+            ground_input = "mixed"
+        
+        if ground_input in ['soft', 's']:
+            ground_condition = GroundCondition.SOFT
+            break
+        elif ground_input in ['mixed', 'm']:
+            ground_condition = GroundCondition.MIXED
+            break
+        elif ground_input in ['rock', 'r']:
+            ground_condition = GroundCondition.ROCK
+            break
+        else:
+            print("  Invalid input. Please enter: soft, mixed, or rock")
+
+    max_rate = ground_condition.get_max_steering_rate()
+    recommended_max = ground_condition.get_recommended_max()
+    print(f"\n  Selected: {ground_condition.value.upper()}")
+    print(f"  Maximum allowed: {max_rate} mm/m")
+    print(f"  Recommended max: {recommended_max} mm/m")
+
+    # ========================================================================
+    # STEP 5: Get Target Steering State
+    # ========================================================================
+
+    print(f"\nSTEP 4: Enter Target Steering State")
+    print("-" * 80)
+    print("Enter desired pitch and yaw values.")
+    print(f"⚠️  Remember: Total steering rate should not exceed {recommended_max} mm/m for {ground_condition.value} ground\n")
 
     target_pitch = get_float_input("Target Pitch (mm/m)", default=0.0)
     target_yaw = get_float_input("Target Yaw (mm/m)", default=0.0)
 
     # ========================================================================
-    # STEP 5: Plan Correction
+    # STEP 6: Plan Correction
     # ========================================================================
 
     print("\nCalculating correction plan...")
@@ -183,18 +221,33 @@ def interactive_calculator():
         current_pitch=current_pitch,
         current_yaw=current_yaw,
         target_pitch=target_pitch,
-        target_yaw=target_yaw
+        target_yaw=target_yaw,
+        ground_condition=ground_condition
     )
+    
+    # Display ground condition validation if present
+    if correction_plan.get('ground_condition_validation'):
+        gc_val = correction_plan['ground_condition_validation']
+        print(f"\nGround Condition Validation:")
+        print(f"  Condition: {gc_val['ground_condition'].upper()}")
+        total_rate = math.sqrt(
+            correction_plan['required_correction']['pitch']**2 +
+            correction_plan['required_correction']['yaw']**2
+        )
+        print(f"  Total steering rate: {total_rate:.2f} mm/m")
+        if gc_val['was_limited']:
+            print(f"  ⚠️  Correction was LIMITED from {gc_val['original_rate']:.2f} mm/m to {total_rate:.2f} mm/m")
+            print(f"     to comply with {gc_val['ground_condition']} ground limits")
 
     # ========================================================================
-    # STEP 6: Generate and Display Report
+    # STEP 7: Generate and Display Report
     # ========================================================================
 
     report = calc.generate_report(analysis, correction_plan)
     print("\n" + report)
 
     # ========================================================================
-    # STEP 7: Save Report (Optional)
+    # STEP 8: Save Report (Optional)
     # ========================================================================
 
     save_choice = input("\nSave report to file? (y/n) [y]: ").strip().lower()
@@ -211,7 +264,7 @@ def interactive_calculator():
             print(f"\n✗ Error saving file: {e}")
 
     # ========================================================================
-    # STEP 8: Continue or Exit
+    # STEP 9: Continue or Exit
     # ========================================================================
 
     print("\n" + "="*80)

@@ -20,11 +20,44 @@ Version: 2.0 (Consolidated)
 import math
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, asdict
+from enum import Enum
 
 
 # ============================================================================
 # DATA STRUCTURES
 # ============================================================================
+
+class GroundCondition(Enum):
+    """
+    Ground condition types with steering rate limits
+    
+    Limits are based on jacking pressure considerations:
+    - Soft: Can handle more aggressive steering
+    - Mixed: Limit to 2-4 mm/m to avoid jacking pressure increase
+    - Rock: Very sensitive - max 2 mm/m to prevent jacking pressure increase and halting
+    """
+    SOFT = "soft"
+    MIXED = "mixed"
+    ROCK = "rock"
+    
+    def get_max_steering_rate(self) -> float:
+        """Get maximum steering rate (mm/m) for this ground condition"""
+        if self == GroundCondition.SOFT:
+            return 10.0  # Can handle more aggressive steering
+        elif self == GroundCondition.MIXED:
+            return 4.0   # Limit to 2-4 mm/m to avoid jacking pressure increase
+        else:  # ROCK
+            return 2.0   # Maximum 2 mm/m to prevent jacking pressure increase and halting
+    
+    def get_recommended_max(self) -> float:
+        """Get recommended maximum steering rate (mm/m)"""
+        if self == GroundCondition.SOFT:
+            return 8.0
+        elif self == GroundCondition.MIXED:
+            return 3.0   # Stay within 2-4 mm/m range, use 3 as safe max
+        else:  # ROCK
+            return 1.5   # Stay well below 2 mm/m limit for safety
+
 
 @dataclass
 class MachineParameters:
@@ -378,7 +411,8 @@ class SteeringCalculator:
         }
 
     def plan_correction(self, current_pitch: float, current_yaw: float,
-                       target_pitch: float, target_yaw: float) -> Dict:
+                       target_pitch: float, target_yaw: float,
+                       ground_condition: Optional[GroundCondition] = None) -> Dict:
         """
         Plan steering correction to achieve target pitch/yaw
 
@@ -387,6 +421,7 @@ class SteeringCalculator:
             current_yaw: Current measured yaw (mm/m)
             target_pitch: Desired target pitch (mm/m)
             target_yaw: Desired target yaw (mm/m)
+            ground_condition: Optional ground condition to apply limits
 
         Returns:
             Complete correction plan with:
@@ -394,11 +429,44 @@ class SteeringCalculator:
             - New cylinder positions
             - Expected results
             - Feasibility analysis
+            - Ground condition validation
             - Warnings
         """
         # Calculate required correction
         pitch_correction = target_pitch - current_pitch
         yaw_correction = target_yaw - current_yaw
+
+        # Apply ground condition limits if specified
+        ground_validation = None
+        if ground_condition:
+            max_rate = ground_condition.get_max_steering_rate()
+            recommended_max = ground_condition.get_recommended_max()
+            
+            # Calculate total steering rate (magnitude)
+            total_steering_rate = math.sqrt(pitch_correction**2 + yaw_correction**2)
+            
+            # Check if correction exceeds limits
+            exceeds_limit = total_steering_rate > max_rate
+            exceeds_recommended = total_steering_rate > recommended_max
+            
+            # If exceeds limit, scale down proportionally
+            if exceeds_limit:
+                scale_factor = max_rate / total_steering_rate
+                pitch_correction = pitch_correction * scale_factor
+                yaw_correction = yaw_correction * scale_factor
+                total_steering_rate = max_rate
+            
+            ground_validation = {
+                'ground_condition': ground_condition.value,
+                'max_allowed_rate': max_rate,
+                'recommended_max_rate': recommended_max,
+                'requested_rate': math.sqrt(pitch_correction**2 + yaw_correction**2) if not exceeds_limit else total_steering_rate,
+                'original_rate': math.sqrt((target_pitch - current_pitch)**2 + (target_yaw - current_yaw)**2),
+                'exceeded_limit': exceeds_limit,
+                'exceeded_recommended': exceeds_recommended,
+                'was_limited': exceeds_limit,
+                'limiting_factor': 'ground_condition' if exceeds_limit else None
+            }
 
         steering_cmd = SteeringCommand(pitch=pitch_correction, yaw=yaw_correction)
 
@@ -417,6 +485,9 @@ class SteeringCalculator:
             'yaw_after_pipe': round(current_yaw + yaw_correction, 2)
         }
 
+        # Generate warnings including ground condition
+        warnings = self._generate_warnings(cylinders, steering_cmd, ground_condition)
+
         return {
             'current_state': {
                 'pitch': current_pitch,
@@ -434,7 +505,8 @@ class SteeringCalculator:
             'correction_per_pipe': correction_per_pipe,
             'expected_result': expected_result,
             'feasibility': self._check_feasibility(cylinders),
-            'warnings': self._generate_warnings(cylinders, steering_cmd)
+            'ground_condition_validation': ground_validation,
+            'warnings': warnings
         }
 
     # ========================================================================
@@ -544,13 +616,15 @@ class SteeringCalculator:
         }
 
     def _generate_warnings(self, cylinders: Dict[str, float],
-                          steering: SteeringCommand) -> List[str]:
+                          steering: SteeringCommand,
+                          ground_condition: Optional[GroundCondition] = None) -> List[str]:
         """
         Generate warnings for the correction plan
 
         Args:
             cylinders: Calculated cylinder positions
             steering: Applied steering command
+            ground_condition: Optional ground condition for additional warnings
 
         Returns:
             List of warning messages
@@ -569,6 +643,30 @@ class SteeringCalculator:
             warnings.append(f"Very high pitch correction ({steering.pitch:.1f} mm/m)")
         if abs(steering.yaw) > 50:
             warnings.append(f"Very high yaw correction ({steering.yaw:.1f} mm/m)")
+
+        # Ground condition specific warnings
+        if ground_condition:
+            total_rate = math.sqrt(steering.pitch**2 + steering.yaw**2)
+            max_rate = ground_condition.get_max_steering_rate()
+            recommended_max = ground_condition.get_recommended_max()
+            
+            if total_rate > max_rate:
+                warnings.append(
+                    f"⚠️ CRITICAL: Steering rate ({total_rate:.2f} mm/m) exceeds maximum "
+                    f"for {ground_condition.value} ground ({max_rate} mm/m). "
+                    f"Risk of jacking pressure increase and halting procedure!"
+                )
+            elif total_rate > recommended_max:
+                warnings.append(
+                    f"⚠️ WARNING: Steering rate ({total_rate:.2f} mm/m) exceeds recommended "
+                    f"for {ground_condition.value} ground ({recommended_max} mm/m). "
+                    f"May cause jacking pressure increase."
+                )
+            elif ground_condition == GroundCondition.ROCK and total_rate > 1.5:
+                warnings.append(
+                    f"⚠️ CAUTION: In rock ground, steering rate ({total_rate:.2f} mm/m) is high. "
+                    f"Monitor jacking pressure closely."
+                )
 
         return warnings
 
@@ -639,20 +737,35 @@ class SteeringCalculator:
                 report_lines.append(f"  • {warning}")
             report_lines.append("")
 
-        # Correction Plan
-        if correction_plan:
-            report_lines.append("STEERING CORRECTION PLAN")
-            report_lines.append("-" * 80)
+            # Correction Plan
+            if correction_plan:
+                report_lines.append("STEERING CORRECTION PLAN")
+                report_lines.append("-" * 80)
 
-            report_lines.append("Target State:")
-            report_lines.append(f"  Pitch: {correction_plan['target_state']['pitch']:7.2f} mm/m")
-            report_lines.append(f"  Yaw:   {correction_plan['target_state']['yaw']:7.2f} mm/m")
-            report_lines.append("")
+                # Ground condition information
+                if correction_plan.get('ground_condition_validation'):
+                    gc_val = correction_plan['ground_condition_validation']
+                    report_lines.append(f"Ground Condition: {gc_val['ground_condition'].upper()}")
+                    report_lines.append(f"  Max Allowed Rate: {gc_val['max_allowed_rate']:.1f} mm/m")
+                    report_lines.append(f"  Recommended Max:  {gc_val['recommended_max_rate']:.1f} mm/m")
+                    total_rate = math.sqrt(
+                        correction_plan['required_correction']['pitch']**2 +
+                        correction_plan['required_correction']['yaw']**2
+                    )
+                    report_lines.append(f"  Applied Rate:      {total_rate:.2f} mm/m")
+                    if gc_val['was_limited']:
+                        report_lines.append(f"  ⚠️  Correction was LIMITED due to ground condition")
+                    report_lines.append("")
 
-            report_lines.append("Required Correction:")
-            report_lines.append(f"  Pitch: {correction_plan['required_correction']['pitch']:7.2f} mm/m")
-            report_lines.append(f"  Yaw:   {correction_plan['required_correction']['yaw']:7.2f} mm/m")
-            report_lines.append("")
+                report_lines.append("Target State:")
+                report_lines.append(f"  Pitch: {correction_plan['target_state']['pitch']:7.2f} mm/m")
+                report_lines.append(f"  Yaw:   {correction_plan['target_state']['yaw']:7.2f} mm/m")
+                report_lines.append("")
+
+                report_lines.append("Required Correction:")
+                report_lines.append(f"  Pitch: {correction_plan['required_correction']['pitch']:7.2f} mm/m")
+                report_lines.append(f"  Yaw:   {correction_plan['required_correction']['yaw']:7.2f} mm/m")
+                report_lines.append("")
 
             report_lines.append("NEW CYLINDER POSITIONS:")
             for cyl, pos in correction_plan['cylinder_positions'].items():
