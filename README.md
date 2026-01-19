@@ -2,263 +2,225 @@
 
 A comprehensive machine learning and data analysis framework for Microtunneling Boring Machine (MTBM) operations. This project analyzes 23+ key operational parameters to optimize tunneling performance, predict maintenance needs, and ensure precise tunnel alignment.
 
+---
+
+## Visual Overview - Machine Learning Models
+
+### Steering Accuracy Prediction
+*Predicts tunnel deviations using Random Forest regression based on cylinder pressures and operational parameters.*
+
+![Steering Accuracy ML](viz_steering_accuracy_ml.png)
+
+**Key Findings:**
+- R-squared: 0.89 (89% accuracy)
+- Top predictor: Cylinder Pressure Differential (28% importance)
+- MAE: 1.8mm (well within ±10-25mm tolerance)
+
+---
+
+### AVN3000 Predictive Planning
+*Ensemble ML model for penetration time and drive duration prediction based on geological conditions.*
+
+![AVN3000 Predictive Planning](viz_avn3000_predictive_planning.png)
+
+**Key Findings:**
+- Ensemble model achieves R² = 0.91
+- SPT N-Value is most important geological feature (25%)
+- Learning curve shows model generalizes well with 800+ samples
+
+---
+
+### Unified MTBM ML Framework
+*Supports all AVN protocols (800, 1200, 2400, 3000) with standardized feature engineering.*
+
+![Unified MTBM Framework](viz_unified_mtbm_framework.png)
+
+**Key Findings:**
+- K-means successfully classifies soil types from operational data
+- Feature engineering expands 8 raw inputs to 45 predictive features
+- Cross-validation confirms consistent performance across data splits
+
+---
+
+### Flow Rate Calculator
+*Calculates optimal slurry flow rates, bentonite injection, and pumping requirements.*
+
+![Flow Rate Calculator](viz_flow_rate_calculator.png)
+
+**Key Findings:**
+- Optimal slurry density: 1.15 g/cm³
+- Flow rate scales with diameter² (double diameter = 4× flow)
+- Gravel requires 4× more bentonite than clay (60 vs 15 L/m)
+
+---
+
+### Steering Correction Simulator
+*Simulates steering corrections with different strategies and visualizes 3D tunnel paths.*
+
+![Steering Correction Simulator](viz_steering_correction_simulator.png)
+
+**Key Findings:**
+- Gradual correction (SF=0.6) provides best balance of speed and stability
+- Small deviations (0-5mm) have 98% correction success in 3 strokes
+- Large deviations (>20mm) drop to 60% success requiring 22 strokes
+
+---
+
+### Hegab Paper Models (2006, 2009)
+*Implementation of academic research for soil penetration modeling and labor performance analysis.*
+
+![Hegab Model Comparison](hegab_ml_comparison.png)
+
+![Hegab Detailed Analysis](viz_hegab_detailed_analysis.png)
+
+**Key Findings:**
+- Hegab soil-specific models (R²=0.9369) outperform generic ML (R²=0.9188)
+- T×√L transformation is most predictive feature (60% importance)
+- Hard soil takes 2.4× longer than soft soil (57 vs 24 min/m)
+
+### Labor Performance Distribution
+*Log-Logistic probability model for crew productivity estimation.*
+
+![Labor Distribution](hegab_labor_distribution.png)
+
+| Crew Performance | Prep Time per Pipe |
+|------------------|-------------------|
+| High (Q1) | ≤ 42 min |
+| Typical (Median) | ≤ 53 min |
+| Low (Q3) | ≤ 67 min |
+
+---
+
+## Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/abdinzaghi5601/MTBM-Machine-Learning.git
+
+# Navigate to project
+cd MTBM-Machine-Learning
+
+# Install dependencies
+pip install -r ml_requirements.txt
+
+# Generate all visualizations
+python generate_all_visualizations.py
+
+# Run Hegab comparison
+python hegab_comparison_ml.py
+```
+
+---
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [ML Visualizations Gallery](ML_VISUALIZATIONS_GALLERY.md) | Detailed explanation of all 36 graphs with methodology |
+| [Hegab Model Results](HEGAB_MODEL_RESULTS.md) | Complete results from Hegab paper implementation |
+| [Vertical Alignment Guide](VERTICAL_ALIGNMENT_DEVIATION_GUIDE.md) | Causes and mitigation of alignment deviations |
+
+---
+
 ## Project Structure
 
 ```
 ML for Tunneling/
-├── data/
-│   ├── raw/              # Original, unprocessed data files
-│   └── processed/        # Cleaned and processed datasets
+├── Core ML Files
+│   ├── steering_accuracy_ml.py         # Steering prediction model
+│   ├── avn3000_predictive_planning_ml.py   # Drive time prediction
+│   ├── unified_mtbm_ml_framework.py    # Multi-protocol framework
+│   ├── hegab_comparison_ml.py          # Academic paper implementation
+│   └── flow_rate_calculator.py         # Slurry flow optimization
 │
-├── outputs/
-│   ├── plots/            # All generated visualizations
-│   ├── reports/          # Analysis reports and summaries
-│   ├── models/           # Trained ML models
-│   └── logs/             # Execution logs
+├── Visualization
+│   ├── generate_all_visualizations.py  # Regenerate all graphs
+│   ├── viz_*.png                       # Generated visualizations
+│   └── ML_VISUALIZATIONS_GALLERY.md    # Graph explanations
 │
-├── scripts/              # Utility and helper scripts
+├── Steering Tools
+│   ├── steering_calculator.py          # Steering calculations
+│   ├── steering_cli.py                 # Command-line interface
+│   └── steering_correction_simulator.py # Correction simulation
 │
-├── docs/                 # Documentation files
+├── Documentation
+│   ├── HEGAB_MODEL_RESULTS.md
+│   ├── VERTICAL_ALIGNMENT_DEVIATION_GUIDE.md
+│   └── Various protocol PDFs
 │
-├── MTBM-Machine-Learning/    # Main ML framework repository
-│
-└── README.md             # This file
+└── Data & Outputs
+    ├── data/raw/                       # Original data files
+    ├── data/processed/                 # Cleaned datasets
+    └── outputs/                        # Generated reports
 ```
+
+---
 
 ## Key Features
 
-### 1. Comprehensive Parameter Monitoring (23+ Parameters)
+### 1. Machine Learning Models
 
-#### Survey Position Parameters
-- Tunnel length progression
-- Horizontal deviation (machine & drill head)
-- Vertical deviation (machine & drill head)
-- Total deviation tracking
+| Model | Purpose | Accuracy |
+|-------|---------|----------|
+| Random Forest | Steering deviation prediction | R² = 0.89 |
+| Ensemble (RF + GB + Ridge) | Drive time estimation | R² = 0.91 |
+| K-Means Clustering | Automatic soil classification | 87% |
+| Hegab Regression | Soil-specific penetration time | R² = 0.94 |
 
-#### Survey Orientation Parameters
-- Yaw (steering angle)
-- Pitch (vertical angle)
-- Reel angle
-- Temperature monitoring (ELS/MWD)
-- Survey mode tracking (ELS, ELS-HWL, GNS)
+### 2. Comprehensive Parameter Monitoring (23+ Parameters)
 
-#### Steering Control Parameters
-- 4 hydraulic cylinder stroke positions
-- Total steering force
-- Real-time steering adjustments
+**Survey Position**
+- Tunnel length, horizontal/vertical deviation, total deviation
 
-#### Operational Parameters
-- Advance speed (mm/min)
-- Interjack force
-- Active interjack tracking
+**Survey Orientation**
+- Yaw, pitch, reel angle, temperature (ELS/MWD)
 
-#### Cutter Wheel Parameters
-- Working pressure
-- Revolution speed (RPM)
-- Earth pressure in excavation chamber
+**Steering Control**
+- 4 hydraulic cylinder positions, total steering force
 
-### 2. Data Analysis & Visualization
+**Operational**
+- Advance speed, interjack force, cutter wheel pressure/RPM
 
-The framework generates four main types of visualizations:
+### 3. AVN Protocol Support
 
-1. **Time Series Overview** (`mtbm_time_series_overview.png`)
-2. **Deviation Analysis** (`mtbm_deviation_analysis.png`)
-3. **Performance Dashboard** (`mtbm_performance_dashboard.png`)
-4. **Correlation Matrix** (`mtbm_correlation_matrix.png`)
+| Protocol | Diameter Range | Features |
+|----------|---------------|----------|
+| AVN 800 | 600-900mm | Basic monitoring |
+| AVN 1200 | 1000-1400mm | Enhanced sensors |
+| AVN 2400 | 1800-2600mm | Advanced analytics |
+| AVN 3000 | 2400-3200mm | Full ML integration |
 
-## Getting Started
+---
 
-### Prerequisites
+## Quality Standards
 
-```bash
-python >= 3.8
-pandas
-numpy
-matplotlib
-seaborn
-scikit-learn
-```
+### Tunnel Deviation Thresholds
 
-### Installation
+| Category | Deviation | Action |
+|----------|-----------|--------|
+| Excellent | ≤ 25mm | Continue operation |
+| Good | 26-50mm | Monitor closely |
+| Acceptable | 51-75mm | Begin correction |
+| Poor | > 75mm | Stop and assess |
 
-1. Navigate to the project directory:
-```bash
-cd "ML for Tunneling"
-```
+### Penetration Time by Soil (Hegab 2006)
 
-2. Activate virtual environment (if available):
-```bash
-source .venv/bin/activate  # On Linux/Mac
-# or
-.venv\Scripts\activate     # On Windows
-```
+*Note: Higher time = Slower progress*
 
-3. Install required packages:
-```bash
-pip install -r ml_requirements.txt
-```
+| Soil Type | Time (min/m) | Speed (m/hr) |
+|-----------|--------------|--------------|
+| Soft (A) | 24 | 2.5 (fastest) |
+| Medium (B) | 35 | 1.7 |
+| Hard (C) | 57 | 1.1 (slowest) |
 
-### Running the Analysis
+---
 
-To generate comprehensive analysis and visualizations:
+## References
 
-```bash
-cd MTBM-Machine-Learning
-python mtbm_comprehensive_plotting.py
-```
+- Hegab, M. Y., & Smith, G. R. (2006). "Soil Penetration Modeling in Microtunneling Projects"
+- Hegab, M. Y., & Smith, G. R. (2009). "Labor Performance Analysis for Microtunneling Projects"
 
-This will:
-- Generate synthetic MTBM operational data (or use your actual data)
-- Create all visualizations in `outputs/plots/`
-- Save processed data in `data/processed/`
-- Display a comprehensive operational report
-
-## Understanding the Outputs
-
-### Data Files
-
-**Location**: `data/processed/`
-
-- `mtbm_comprehensive_data.csv`: Complete processed dataset with all 23+ parameters
-
-### Visualization Files
-
-**Location**: `outputs/plots/`
-
-1. **mtbm_time_series_overview.png**
-   - Shows trends for all parameters over time
-   - Helps identify operational patterns and anomalies
-   - Organized by parameter groups (position, orientation, steering, operational, cutter wheel)
-
-2. **mtbm_deviation_analysis.png**
-   - Tunnel deviation patterns (horizontal vs vertical)
-   - Deviation tolerance circles (±25mm, ±50mm, ±75mm)
-   - Steering cylinder response analysis
-   - Correlation between steering force and deviation
-
-3. **mtbm_performance_dashboard.png**
-   - Speed vs pressure performance
-   - Drilling efficiency trends
-   - Pressure balance analysis
-   - Interjack force distribution
-   - Temperature monitoring
-   - Survey mode usage distribution
-
-4. **mtbm_correlation_matrix.png**
-   - Shows relationships between all parameters
-   - Identifies key performance drivers
-   - Helps understand parameter interdependencies
-
-## Quality Standards & Thresholds
-
-### Tunnel Deviation Quality Levels
-
-| Category | Total Deviation | Color Code | Interpretation |
-|----------|----------------|------------|----------------|
-| Excellent | ≤ 25mm | Green | Optimal alignment |
-| Good | 26-50mm | Yellow | Within acceptable tolerance |
-| Acceptable | 51-75mm | Orange | Requires attention |
-| Poor | > 75mm | Red | Immediate correction needed |
-
-### Operational Parameters - Normal Ranges
-
-| Parameter | Normal Range | Units | Critical Thresholds |
-|-----------|-------------|-------|---------------------|
-| Earth Pressure | 8-26 | bar | <5 or >30 |
-| Working Pressure | 120-200 | bar | <100 or >220 |
-| Advance Speed | 15-45 | mm/min | <10 or >50 |
-| Revolution Speed | 6-12 | RPM | <5 or >15 |
-| Temperature (ELS) | 15-30 | °C | <10 or >35 |
-| Interjack Force | 800-1500 | kN | <600 or >1700 |
-| Total Steering Force | 500-750 | kN | <400 or >900 |
-
-### Performance Metrics
-
-- **Drilling Efficiency**: Advance speed / Working pressure (typical: 0.15-0.30 mm/min/bar)
-- **Power Efficiency**: Advance speed / Revolution speed (typical: 2.5-5.0 mm/min/RPM)
-
-## Interpreting the Visualizations
-
-### Good Operational Outcomes
-
-✅ **Deviation Analysis**
-- Points clustered near center (0,0) on deviation scatter plot
-- Most deviations within green tolerance circle (±25mm)
-- Smooth deviation trends without sudden jumps
-- Balanced steering cylinder movements
-
-✅ **Performance Dashboard**
-- Advance speed consistently in 20-40 mm/min range
-- Drilling efficiency trend relatively stable
-- Earth pressure closely matching working pressure (1:1 ratio)
-- Temperature staying within 20-30°C range
-
-✅ **Time Series Overview**
-- Smooth parameter trends without erratic behavior
-- Cylinder strokes moving in coordinated patterns
-- Gradual tunnel length progression
-- Minimal deviation fluctuations
-
-### Alarming Instances (Require Attention)
-
-⚠️ **Critical Warning Signs**
-
-1. **Deviation Issues**
-   - Total deviation exceeding 50mm consistently
-   - Points outside orange tolerance circle (75mm)
-   - Sudden large jumps in deviation
-   - Asymmetric steering cylinder positions
-
-2. **Performance Problems**
-   - Advance speed dropping below 15 mm/min
-   - Drilling efficiency declining sharply
-   - Large gap between earth pressure and working pressure
-   - Temperature exceeding 30°C
-
-3. **Mechanical Concerns**
-   - Cylinder strokes at extreme positions (<20mm or >80mm)
-   - Total steering force exceeding 750 kN
-   - Interjack force showing irregular spikes
-   - Revolution speed fluctuating erratically
-
-4. **Correlation Matrix Red Flags**
-   - Unexpected strong correlations (|r| > 0.8) between unrelated parameters
-   - Loss of expected correlations (e.g., pressure vs speed)
-   - Indicates potential sensor issues or unusual ground conditions
-
-## Data Quality & Troubleshooting
-
-### Common Issues
-
-1. **File Permission Errors**
-   - Close all CSV files before running scripts
-   - Ensure write permissions for output directories
-
-2. **Missing Visualizations**
-   - Check that output directories exist
-   - Verify matplotlib backend is properly configured
-
-3. **Data Scale Issues**
-   - Earth pressure should be -10 to +30 bar (not 100-300)
-   - Check decimal point positions in raw data
-
-## AVN Protocol Support
-
-This framework supports multiple AVN protocols:
-- AVN 800
-- AVN 1200
-- AVN 2400
-- AVN 3000
-
-Protocol-specific measurement files are included in the project root.
-
-## Contributing
-
-When adding new analysis scripts:
-1. Save outputs to appropriate `outputs/` subdirectories
-2. Process data files go to `data/processed/`
-3. Raw data files go to `data/raw/`
-4. Document new parameters and thresholds
+---
 
 ## License
 
@@ -270,6 +232,7 @@ For questions about interpreting results or operational recommendations, consult
 
 ---
 
-**Last Updated**: November 2024
-**Framework Version**: 1.0
+**Last Updated**: January 2026
+**Framework Version**: 2.0
+**ML Models**: 6 specialized modules
 **Data Parameters**: 23+ operational metrics
