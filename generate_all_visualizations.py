@@ -614,17 +614,17 @@ def generate_hegab_additional_plots():
     ax1.set_title('Hegab Variable Transformations')
     ax1.legend()
 
-    # 6.2 Soil-Specific Penetration Rates
+    # 6.2 Soil-Specific Penetration Time (Higher = Slower)
     ax2 = fig.add_subplot(gs[0, 1])
-    soils = ['Soft (A)', 'Medium (B)', 'Hard (C)']
-    rates = [24, 35, 57]  # min/m
+    soils = ['Soft (A)\n2.5 m/hr', 'Medium (B)\n1.7 m/hr', 'Hard (C)\n1.1 m/hr']
+    times = [24, 35, 57]  # min/m - higher = slower progress
     colors = ['#3498db', '#f39c12', '#e74c3c']
-    bars = ax2.bar(soils, rates, color=colors, edgecolor='black', linewidth=2)
+    bars = ax2.bar(soils, times, color=colors, edgecolor='black', linewidth=2)
     ax2.set_ylabel('Penetration Time (min/m)')
-    ax2.set_title('Hegab Paper: Penetration Rates by Soil')
-    for bar, rate in zip(bars, rates):
+    ax2.set_title('Penetration Time by Soil\n(Higher = Slower Progress)')
+    for bar, time in zip(bars, times):
         ax2.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 1,
-                f'{rate} min/m', ha='center', va='bottom', fontweight='bold')
+                f'{time} min/m', ha='center', va='bottom', fontweight='bold')
 
     # 6.3 Model Equation Comparison
     ax3 = fig.add_subplot(gs[0, 2])

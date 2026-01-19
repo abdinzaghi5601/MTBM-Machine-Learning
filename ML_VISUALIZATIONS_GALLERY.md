@@ -187,12 +187,14 @@
 ### Detailed Analysis
 ![Hegab Detailed Analysis](viz_hegab_detailed_analysis.png)
 
-### Penetration Rates (Hegab 2006)
-| Soil Type | Rate (min/m) |
-|-----------|--------------|
-| Soft (A) | 24 |
-| Medium (B) | 35 |
-| Hard (C) | 57 |
+### Penetration Time by Soil Type (Hegab 2006)
+*Higher time = Slower progress (harder ground takes longer)*
+
+| Soil Type | Time (min/m) | Speed Equivalent | Progress |
+|-----------|--------------|------------------|----------|
+| Soft (A) | 24 | 2.5 m/hour | Fastest |
+| Medium (B) | 35 | 1.7 m/hour | Medium |
+| Hard (C) | 57 | 1.1 m/hour | Slowest |
 
 ### Labor Performance (Hegab 2009)
 | Performance | Prep Time |

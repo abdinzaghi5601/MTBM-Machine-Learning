@@ -22,6 +22,20 @@ Comparison between Hegab (2006) paper models and modern ML approaches:
 
 ---
 
+## Penetration Time by Soil Type (Hegab 2006)
+
+*Note: Higher time values = Slower progress (harder ground takes longer to penetrate)*
+
+| Soil Type | Penetration Time | Speed Equivalent | Progress |
+|-----------|------------------|------------------|----------|
+| Soft (A) | 24 min/m | 2.5 m/hour | Fastest |
+| Medium (B) | 35 min/m | 1.7 m/hour | Medium |
+| Hard (C) | 57 min/m | 1.1 m/hour | Slowest |
+
+**Interpretation**: A drive in hard soil (C) takes 57 minutes per meter - more than twice as long as soft soil (A) at 24 minutes per meter.
+
+---
+
 ## Feature Importance Analysis
 
 The most important features identified by Random Forest:
