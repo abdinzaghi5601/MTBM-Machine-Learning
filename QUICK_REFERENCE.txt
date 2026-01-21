@@ -1,0 +1,146 @@
+================================================================================
+        MTBM ML FRAMEWORK - QUICK REFERENCE CARD
+================================================================================
+
+🚀 EASIEST WAY - INTERACTIVE MODE (NO ARGUMENTS!)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Open Terminal/PowerShell:
+    cd MTBM-Machine-Learning
+
+Run the program:
+    python auto_protocol_analyzer.py
+
+Answer questions:
+    ✓ Select CSV file (or generate sample)
+    ✓ Select pipe diameter
+    ✓ Choose sensitivity
+    ✓ Done!
+
+Results:
+    outputs/AVN*/auto_analysis/integrated_summary_*.txt
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 COMMAND-LINE OPTIONS (FOR ADVANCED USERS)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Complete analysis:
+    python auto_protocol_analyzer.py --data file.csv --diameter 800
+
+Generate test data:
+    python auto_protocol_analyzer.py --generate-sample --diameter 800
+
+High sensitivity:
+    python auto_protocol_analyzer.py --data file.csv --diameter 800 --sensitivity high
+
+Skip anomaly detection:
+    python auto_protocol_analyzer.py --data file.csv --diameter 800 --skip-anomaly
+
+Force interactive:
+    python auto_protocol_analyzer.py --interactive
+    python auto_protocol_analyzer.py -i
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📁 WHERE ARE MY FILES?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Put your CSV here:
+    MTBM-Machine-Learning/data/raw/yourfile.csv
+
+Results go here:
+    MTBM-Machine-Learning/outputs/AVN[protocol]/auto_analysis/
+
+Read this first:
+    outputs/AVN*/auto_analysis/integrated_summary_*.txt
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📚 WHAT TO READ?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+First time user:
+    1. START_HERE.md (5 min)
+    2. INTERACTIVE_MODE_GUIDE.md (10 min)
+    3. Run the program!
+
+Want complete details:
+    AUTO_ANALYZER_GUIDE.md
+
+Need to find something:
+    ESSENTIAL_FILES.md or NAVIGATION_GUIDE.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 COMMON PIPE DIAMETERS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+600 mm  → Tolerances: ±20mm vertical, ±25mm horizontal
+800 mm  → Tolerances: ±25mm vertical, ±40mm horizontal
+1000 mm → Tolerances: ±30mm vertical, ±100mm horizontal
+1200 mm → Tolerances: ±30mm vertical, ±100mm horizontal
+1400 mm → Tolerances: ±50mm vertical, ±200mm horizontal
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔧 TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+"Module not found":
+    pip install -r requirements.txt
+
+"TensorFlow warning":
+    Ignore it (4 other ML algorithms work fine)
+    Optional: pip install tensorflow
+
+No CSV files found:
+    Put files in data/raw/ folder
+    Or select [0] and enter full path
+    Or select [G] to generate test data
+
+Want to cancel:
+    Type Q in file selection
+    Or press Ctrl+C anytime
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💡 PRO TIPS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Fastest workflow:
+    1. Put CSV in data/raw/
+    2. Run: python auto_protocol_analyzer.py
+    3. Select file number
+    4. Select diameter
+    5. Press Enter for defaults
+    6. Done!
+
+Check results quickly:
+    Windows: type outputs\AVN*\auto_analysis\integrated_summary_*.txt
+    Mac/Linux: cat outputs/AVN*/auto_analysis/integrated_summary_*.txt
+
+Daily monitoring:
+    python auto_protocol_analyzer.py --data daily.csv --diameter 800
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ QUALITY THRESHOLDS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Excellent:  <5% anomalies, >95% compliance, <25mm deviation
+Good:       5-10% anomalies, 85-95% compliance, 25-50mm deviation
+Concerning: >15% anomalies, <80% compliance, >50mm deviation
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 ONE COMMAND TO RULE THEM ALL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    python auto_protocol_analyzer.py
+
+That's it! Everything else is optional. 🚀
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Created: November 2024 | Version: 1.0 | Status: ✅ Production Ready
